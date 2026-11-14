@@ -1,11 +1,14 @@
 import json
 import os
+from groq import Groq
 import streamlit as st
-from openai import OpenAI  # Or use the official Google GenAI SDK
 
-# 1. Setup the Client and System Rulebook
-# (Replace with your actual API key or store it securely in environment variables)
-client = OpenAI(api_key=os.environ.get("API_KEY"))
+# 1. Setup the Groq Client
+# (Loaded securely from your Streamlit cloud secrets)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+# Use Groq's high-performance Llama model
+MODEL_ID = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """
 You are a personal companion, confidant, and smart co-pilot.
@@ -56,19 +59,20 @@ if prompt := st.chat_input("What's on your mind?"):
   # Prepare full conversation history including the System Prompt
   full_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + st.session_state.messages
 
-  # Call the API
-  response = client.chat.completions.create(
-      model="gpt-4o-mini",  # Or your preferred model / Gemini API endpoint
-      messages=full_messages,
+  # Call Groq API
+  chat_completion = client.chat.completions.create(
+      messages=full_messages, model=MODEL_ID
   )
 
-  assistant_reply = response.choices[0].message.content
+  assistant_reply = chat_completion.choices[0].message.content
 
   # Display assistant response
   with st.chat_message("assistant"):
     st.markdown(assistant_reply)
 
-  st.session_state.messages.append({"role": "assistant", "content": assistant_reply})
+  st.session_state.messages.append(
+      {"role": "assistant", "content": assistant_reply}
+  )
 
   # Save updated history to local memory file
   save_memory(st.session_state.messages)
