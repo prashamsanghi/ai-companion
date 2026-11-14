@@ -5,7 +5,7 @@ import streamlit as st
 
 # 1. Setup the Groq Client
 # (Loaded securely from your Streamlit cloud secrets)
-client = Groq(api_key=os.environ.get("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"))
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 # Use Groq's active open developer model
 MODEL_ID = "openai/gpt-oss-20b"
